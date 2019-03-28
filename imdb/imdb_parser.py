@@ -12,25 +12,33 @@ class ImdbScraper:
     }
 
     def parseImdbData(self):
-        html_page = urllib2.urlopen(
-            "https://www.imdb.com/search/title?groups=top_250&view=simple&sort=user_rating,desc&ref_=adv_prv")
-        contents = html_page.read()
-        soup = BeautifulSoup(contents, 'lxml')
+        movie_number = 1
+        url_part_1 = "https://www.imdb.com/search/title?groups=top_1000&view=simple&sort=user_rating,desc&start="
+        url_part_2 = str(movie_number)
+        url_part_3 = "&ref_=adv_nxt"
 
-        listerItems = soup.findAll("div", {"class": "lister-item mode-simple"})
-        for listerItem in listerItems:
-            coltitle = listerItem.findAll("div", {"class": "col-title"})
-            movie = ''
-            for col in coltitle:
-                children = col.findChildren("a")
-                for child in children:
-                    movie = child.string
-                    print(child.string)
-            ratings = listerItem.findAll("div", {"class": "col-imdb-rating"})
-            for rating in ratings:
-                print(rating.findChildren("strong")[0].string.strip())
-                rating = rating.findChildren("strong")[0].string.strip()
-                self.movie_rating[movie] = rating
+        #print(url_part_1 + url_part_2 + url_part_3)
+
+        while movie_number < 1000:
+            html_page = urllib2.urlopen(url_part_1 + str(movie_number) + url_part_3)
+            contents = html_page.read()
+            soup = BeautifulSoup(contents, 'lxml')
+
+            listerItems = soup.findAll("div", {"class": "lister-item mode-simple"})
+            for listerItem in listerItems:
+                coltitle = listerItem.findAll("div", {"class": "col-title"})
+                movie = ''
+                for col in coltitle:
+                    children = col.findChildren("a")
+                    for child in children:
+                        movie = child.string
+                        #print(child.string)
+                ratings = listerItem.findAll("div", {"class": "col-imdb-rating"})
+                for rating in ratings:
+                    #print(rating.findChildren("strong")[0].string.strip())
+                    rating = rating.findChildren("strong")[0].string.strip()
+                    self.movie_rating[movie] = rating
+            movie_number += 50
 
     def findMovieOnNetflix(self, movie):
         print("netflix " + movie)
@@ -115,14 +123,27 @@ class ImdbScraper:
         for script in scripts:
             print(script['value'])
 
+    def decodeHexSigns(self, str):
+        begin_escape_index = str.find('\\x')
+        while begin_escape_index != -1:
+            characters_to_replace = str[begin_escape_index:begin_escape_index+4]
+            str = str.replace(characters_to_replace, bytearray.fromhex(characters_to_replace[2:]).decode("utf-8"))
+            begin_escape_index = str.find('\\x')
+        print(str)
+        return str
+        #print(bytearray.fromhex("3D2B").decode())
+
 test = ImdbScraper()
+test.decodeHexSigns("1553695239513.lqLs9m2iXIJ77lLdWxg\\x2B5KaLSVU\\x3D")
 test.parseImdbData()
+print("movies ")
+print(test.movie_rating)
 
 # test.findMovieOnNetflix("schindlers list")
 #test.testLogin(    "https://www.netflix.com/be-en/Login?nextpage=https%3A%2F%2Fwww.netflix.com%2Fsearch%3Fq%3Dschindlers%2Blist")
-s = test.loginToNetflix()
-authUrl = test.fetchMovieDataFromNetflix(s, "the departed")
-test.fetchJsonMovieDataFromNetflix(s, "the departed", authUrl)
+#s = test.loginToNetflix()
+#authUrl = test.fetchMovieDataFromNetflix(s, "the departed")
+#test.fetchJsonMovieDataFromNetflix(s, "the departed", authUrl)
 
 # print(test.movie_rating)
 # for key in test.movie_rating:
