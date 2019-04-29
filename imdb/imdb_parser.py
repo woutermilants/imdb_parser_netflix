@@ -38,7 +38,7 @@ class ImdbNetflixChecker:
 
         login_data = {
             'userLoginId': 'woutmilants@gmail.com',
-            'password': 'netflixWouter2019',
+            'password': '',
             'rememberMe': 'true',
             'flow': 'websiteSignUp',
             'mode': 'login',

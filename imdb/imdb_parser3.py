@@ -83,7 +83,7 @@ class ImdbNetflixChecker:
     def login_to_netflix(self):
         login_data = {
             'userLoginId': 'woutmilants@gmail.com',
-            'password': 'netflixWouter2019',
+            'password': '',
             'rememberMe': 'true',
             'flow': 'websiteSignUp',
             'mode': 'login',
